@@ -11,6 +11,7 @@ URL: http://gmplib.org/
 Source0: ftp://ftp.gnu.org/pub/gnu/gmp/gmp-%{version}.tar.bz2
 Source2: gmp.h
 Source3: gmp-mparam.h
+Source1001: packaging/gmp.manifest 
 License: GPLv3+ and LGPLv3
 Group: System/Libraries
 BuildRequires: autoconf
@@ -55,6 +56,7 @@ in applications.
 %setup -q 
 
 %build
+cp %{SOURCE1001} .
 autoreconf -if
 if as --help | grep -q execstack; then
   # the object files do not require an executable stack
@@ -186,6 +188,7 @@ cd ..
 rm -rf $RPM_BUILD_ROOT
 
 %files
+%manifest gmp.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libgmp.so.*
 %{_libdir}/libmp.so.*
@@ -195,6 +198,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %files devel
+%manifest gmp.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmp.so
 %{_libdir}/libgmp.so
@@ -202,6 +206,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/*.h
 
 %files static
+%manifest gmp.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libmp.a
 %{_libdir}/libgmp.a
