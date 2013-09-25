@@ -113,6 +113,8 @@ cd ..
 
 %install
 rm -rf $RPM_BUILD_ROOT
+mkdir -p %{buildroot}/usr/share/license
+cp COPYING.LIB %{buildroot}/usr/share/license/%{name}
 cd base
 export LD_LIBRARY_PATH=`pwd`/.libs
 make install DESTDIR=$RPM_BUILD_ROOT
@@ -193,6 +195,7 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch %{ix86}
 %{_libdir}/sse2/*
 %endif
+/usr/share/license/%{name}
 
 %files devel
 %defattr(-,root,root,-)
