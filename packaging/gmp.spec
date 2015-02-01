@@ -54,6 +54,8 @@ rm -rf mpn/sparc*
 %build
 ./configure \
     --prefix=%{_prefix} \
+    --includedir=%{_includedir} \
+    --libdir=%{_libdir} \
     --enable-cxx \
     --enable-mpbsd
 
@@ -93,4 +95,3 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libgmp.a
 %{_libdir}/libgmpxx.a
 %{_libdir}/libmp.a
-
