@@ -12,7 +12,7 @@ This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -21,7 +21,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
 #include "gmp.h"
 #include "gmp-impl.h"
@@ -33,7 +35,7 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
    Note that prodp gets usize+vsize limbs stored, even if the actual result
    only needs usize+vsize-1.
 
-   There's no good reason to call here with vsize>=MUL_TOOM22_THRESHOLD.
+   There's no good reason to call here with vsize>=MUL_KARATSUBA_THRESHOLD.
    Currently this is allowed, but it might not be in the future.
 
    This is the most critical code for multiplication.  All multiplies rely

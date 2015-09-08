@@ -6,7 +6,7 @@ This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -15,7 +15,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+02110-1301, USA.
 
 
 
@@ -160,6 +162,18 @@ purposes and are not for use in "make check".  These should be listed
 in EXTRA_PROGRAMS to get Makefile rules created, but they're never
 built or run unless an explicit "make someprog" is used.
 
+** Macos directory
+
+The macos/configure script will automatically pick up additions to
+gmp_mpn_functions, MPZ_OBJECTS, etc, but currently test programs need
+to be added to Makefile.in manually.
+
+When modifying the top-level configure.in ensure that it doesn't upset
+the macos/configure script heuristics.
+
+Unfortunately there's no way to test this stuff without getting an
+actual MacOS 9 system.
+
 
 * Adding a new CPU
 
@@ -266,19 +280,19 @@ During development:
 
     Input files                       Tool       Output files
     ---------------------------------------------------------
-
+                                 
                                      aclocal
     $prefix/share/aclocal*/*.m4 ----------------> aclocal.m4
 
-
+                   
     configure.in \                   autoconf
     aclocal.m4   / -----------------------------> configure
 
-
+                  
     */Makefile.am \                  automake
     configure.in  | ----------------------------> Makefile.in
     aclocal.m4    /
-
+                    
     configure.in \                  autoheader
     aclocal.m4   / -----------------------------> config.in
 

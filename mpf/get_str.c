@@ -1,17 +1,17 @@
 /* mpf_get_str (digit_ptr, exp, base, n_digits, a) -- Convert the floating
-   point number A to a base BASE number and store N_DIGITS raw digits at
-   DIGIT_PTR, and the base BASE exponent in the word pointed to by EXP.  For
-   example, the number 3.1416 would be returned as "31416" in DIGIT_PTR and
-   1 in EXP.
+  point number A to a base BASE number and store N_DIGITS raw digits at
+  DIGIT_PTR, and the base BASE exponent in the word pointed to by EXP.  For
+  example, the number 3.1416 would be returned as "31416" in DIGIT_PTR and
+  1 in EXP.
 
-Copyright 1993, 1994, 1995, 1996, 1997, 2000, 2001, 2002, 2003, 2005, 2006 Free
+Copyright 1993, 1994, 1995, 1996, 1997, 2000, 2001, 2002, 2003, 2005 Free
 Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -20,7 +20,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
 #include <stdlib.h>		/* for NULL */
 #include "gmp.h"
@@ -29,9 +31,11 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 
 /* Could use some more work.
 
-   1. Allocation is excessive.  Try to combine areas.  Perhaps use result
+   1. Don't unconditionally allocate temps on the stack.
+   2. Make one temp alloc block, and split it manually.
+   3. Allocation is excessive.  Try to combine areas.  Perhaps use result
       string area for temp limb space?
-   2. We generate up to two limbs of extra digits.  This is because we don't
+   4. We generate up to two limbs worth of digits.  This is because we don't
       check the exact number of bits in the input operand, and from that
       compute an accurate exponent (variable e in the code).  It would be
       cleaner and probably somewhat faster to change this.
@@ -67,7 +71,7 @@ mpn_pow_1_highpart (mp_ptr rp, mp_size_t *ignp,
   count_leading_zeros (cnt, exp);
   for (i = GMP_LIMB_BITS - cnt - 2; i >= 0; i--)
     {
-      mpn_sqr (tp, rp + off, rn);
+      mpn_sqr_n (tp, rp + off, rn);
       rn = 2 * rn;
       rn -= tp[rn - 1] == 0;
       ign <<= 1;
@@ -93,16 +97,12 @@ mpn_pow_1_highpart (mp_ptr rp, mp_size_t *ignp,
 
   if (rn > prec)
     {
-      ASSERT (rn == prec + 1);
-
       ign += rn - prec;
       rp += rn - prec;
       rn = prec;
     }
 
-  /* With somewhat less than 50% probability, we can skip this copy.  */
-  if (passed_rp != rp + off)
-    MPN_COPY_INCR (passed_rp, rp + off, rn);
+  MPN_COPY_INCR (passed_rp, rp + off, rn);
   *ignp = ign;
   return rn;
 }
@@ -174,8 +174,7 @@ mpf_get_str (char *dbuf, mp_exp_t *exp, int base, size_t n_digits, mpf_srcptr u)
      conversion.)  */
   tstr = (unsigned char *) TMP_ALLOC (n_digits + 2 * GMP_LIMB_BITS + 3);
 
-  n_limbs_needed = 2 + (mp_size_t)
-    (n_digits / (GMP_NUMB_BITS * mp_bases[base].chars_per_bit_exactly));
+  n_limbs_needed = 2 + ((mp_size_t) (n_digits / mp_bases[base].chars_per_bit_exactly)) / GMP_NUMB_BITS;
 
   if (ue <= n_limbs_needed)
     {

@@ -1,12 +1,12 @@
 /* Test locale support in C++ functions.
 
-Copyright 2001, 2002, 2003, 2007 Free Software Foundation, Inc.
+Copyright 2001, 2002, 2003 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -15,11 +15,12 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
 #include <clocale>
 #include <iostream>
-#include <cstdlib>
 
 #include "gmp.h"
 #include "gmp-impl.h"
@@ -28,9 +29,7 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 using namespace std;
 
 
-extern "C" {
-  char point_string[2];
-}
+char point_string[2];
 
 #if HAVE_STD__LOCALE
 // Like std::numpunct, but with decimal_point coming from point_string[].

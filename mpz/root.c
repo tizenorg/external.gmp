@@ -1,13 +1,13 @@
 /* mpz_root(root, u, nth) --  Set ROOT to floor(U^(1/nth)).
    Return an indication if the result is exact.
 
-Copyright 1999, 2000, 2001, 2002, 2003, 2005 Free Software Foundation, Inc.
+Copyright 1999, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -16,9 +16,11 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
-#include <stdio.h>		/* for NULL */
+#include <stdio.h>  /* for NULL */
 #include "gmp.h"
 #include "gmp-impl.h"
 
@@ -27,8 +29,8 @@ mpz_root (mpz_ptr root, mpz_srcptr u, unsigned long int nth)
 {
   mp_ptr rootp, up;
   mp_size_t us, un, rootn, remn;
-  TMP_DECL;
 
+  up = PTR(u);
   us = SIZ(u);
 
   /* even roots of negatives provoke an exception */
@@ -50,15 +52,15 @@ mpz_root (mpz_ptr root, mpz_srcptr u, unsigned long int nth)
   un = ABS (us);
   rootn = (un - 1) / nth + 1;
 
-  TMP_MARK;
-
-  /* FIXME: Perhaps disallow root == NULL */
-  if (root != NULL && u != root)
-    rootp = MPZ_REALLOC (root, rootn);
+  if (root != NULL)
+    {
+      rootp = MPZ_REALLOC (root, rootn);
+      up = PTR(u);
+    }
   else
-    rootp = TMP_ALLOC_LIMBS (rootn);
-
-  up = PTR(u);
+    {
+      rootp = __GMP_ALLOCATE_FUNC_LIMBS (rootn);
+    }
 
   if (nth == 1)
     {
@@ -71,12 +73,9 @@ mpz_root (mpz_ptr root, mpz_srcptr u, unsigned long int nth)
     }
 
   if (root != NULL)
-    {
-      SIZ(root) = us >= 0 ? rootn : -rootn;
-      if (u == root)
-	MPN_COPY (up, rootp, rootn);
-    }
+    SIZ(root) = us >= 0 ? rootn : -rootn;
+  else
+    __GMP_FREE_FUNC_LIMBS (rootp, rootn);
 
-  TMP_FREE;
   return remn == 0;
 }

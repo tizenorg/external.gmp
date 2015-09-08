@@ -6,7 +6,7 @@ This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -15,7 +15,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +31,7 @@ void
 check_random (int argc, char *argv[])
 {
   gmp_randstate_ptr rands = RANDS;
-  int    reps = 500000;
+  int    reps = 5000;
   mpz_t  a, q, got;
   int    i, qneg;
   unsigned long  d;
@@ -43,9 +45,7 @@ check_random (int argc, char *argv[])
 
   for (i = 0; i < reps; i++)
     {
-      do
-	d = (unsigned long) urandom();
-      while (d == 0);
+      d = (unsigned long) urandom();
       mpz_erandomb (q, rands, 512);
       mpz_mul_ui (a, q, d);
 

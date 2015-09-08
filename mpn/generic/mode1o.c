@@ -10,7 +10,7 @@ This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -19,7 +19,10 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
 
 #include "gmp.h"
 #include "gmp-impl.h"
@@ -28,16 +31,16 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 
 /* Calculate an r satisfying
 
-           r*B^k + a - c == q*d
+           r*b^k + a - c == q*d
 
-   where B=2^GMP_LIMB_BITS, a is {src,size}, k is either size or size-1
+   where b=2^BITS_PER_MP_LIMB, a is {src,size}, k is either size or size-1
    (the caller won't know which), and q is the quotient (discarded).  d must
    be odd, c can be any limb value.
 
    If c<d then r will be in the range 0<=r<d, or if c>=d then 0<=r<=d.
 
    This slightly strange function suits the initial Nx1 reduction for GCDs
-   or Jacobi symbols since the factors of 2 in B^k can be ignored, leaving
+   or Jacobi symbols since the factors of 2 in b^k can be ignored, leaving
    -r == a mod d (by passing c=0).  For a GCD the factor of -1 on r can be
    ignored, or for the Jacobi symbol it can be accounted for.  The function
    also suits divisibility and congruence testing since if r=0 (or r=d) is
@@ -74,11 +77,11 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
    In the main loop it will be noted that the new carry (call it r) is the
    sum of the high product h and any borrow from l=s-c.  If c<d then we will
    have r<d too, for the following reasons.  Let q=l*inverse be the quotient
-   limb, so that q*d = B*h + l, where B=2^GMP_NUMB_BITS.  Now if h=d-1 then
+   limb, so that q*d = b*h + l, where b=2^GMP_NUMB_BITS.  Now if h=d-1 then
 
-       l = q*d - B*(d-1) <= (B-1)*d - B*(d-1) = B-d
+       l = q*d - b*(d-1) <= (b-1)*d - b*(d-1) = b-d
 
-   But if l=s-c produces a borrow when c<d, then l>=B-d+1 and hence will
+   But if l=s-c produces a borrow when c<d, then l>=b-d+1 and hence will
    never have h=d-1 and so r=h+borrow <= d-1.
 
    When c>=d, on the other hand, h=d-1 can certainly occur together with a
@@ -93,7 +96,7 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
    The special case for size==1 is so that it can be assumed c<=d in the
    high<=divisor test at the end.  c<=d is only guaranteed after at least
    one iteration of the main loop.  There's also a decent chance one % is
-   faster than a binvert_limb, though that will depend on the processor.
+   faster than a modlimb_invert, though that will depend on the processor.
 
    A CPU specific implementation might want to omit the size==1 code or the
    high<divisor test.  mpn/x86/k6/mode1o.asm for instance finds neither
@@ -133,7 +136,7 @@ mpn_modexact_1c_odd (mp_srcptr src, mp_size_t size, mp_limb_t d,
     }
 
 
-  binvert_limb (inverse, d);
+  modlimb_invert (inverse, d);
   dmul = d << GMP_NAIL_BITS;
 
   i = 0;
@@ -201,7 +204,7 @@ mpn_modexact_1c_odd (mp_srcptr src, mp_size_t size, mp_limb_t d, mp_limb_t h)
   ASSERT (size >= 1);
   ASSERT (d & 1);
 
-  binvert_limb (inverse, d);
+  modlimb_invert (inverse, d);
   dmul = d << GMP_NAIL_BITS;
 
   for (i = 0; i < size; i++)

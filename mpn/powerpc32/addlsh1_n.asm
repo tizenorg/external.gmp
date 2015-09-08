@@ -1,12 +1,12 @@
 dnl  PowerPC-32 mpn_addlsh1_n -- rp[] = up[] + (vp[] << 1)
 
-dnl  Copyright 2003, 2005, 2007 Free Software Foundation, Inc.
+dnl  Copyright 2003, 2005 Free Software Foundation, Inc.
 
 dnl  This file is part of the GNU MP Library.
 
 dnl  The GNU MP Library is free software; you can redistribute it and/or modify
 dnl  it under the terms of the GNU Lesser General Public License as published
-dnl  by the Free Software Foundation; either version 3 of the License, or (at
+dnl  by the Free Software Foundation; either version 2.1 of the License, or (at
 dnl  your option) any later version.
 
 dnl  The GNU MP Library is distributed in the hope that it will be useful, but
@@ -15,7 +15,9 @@ dnl  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 dnl  License for more details.
 
 dnl  You should have received a copy of the GNU Lesser General Public License
-dnl  along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
+dnl  along with the GNU MP Library; see the file COPYING.LIB.  If not, write
+dnl  to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+dnl  Boston, MA 02110-1301, USA.
 
 include(`../config.m4')
 
@@ -54,17 +56,16 @@ PROLOGUE(mpn_addlsh1_n)
 	addi	up, up, -4	C update up
 	addi	rp, rp, -4	C update rp
 	slwi	s1, v0, 1
-	bdz	L(end)		C If done, skip loop
+	bdz	.Lend		C If done, skip loop
 
-L(loop):
-	lwz	v1, 4(vp)	C load v limb
+.Loop:	lwz	v1, 4(vp)	C load v limb
 	adde	s1, s1, u0	C add limbs with cy, set cy
 	srwi	s0, v0, 31	C shift down previous v limb
 	stw	s1, 4(rp)	C store result limb
 	lwzu	u0, 8(up)	C load u limb and update up
 	rlwimi	s0, v1, 1, 0,30	C left shift v limb and merge with prev v limb
 
-	bdz	L(exit)		C decrement ctr and exit if done
+	bdz	.Lexit		C decrement ctr and exit if done
 
 	lwzu	v0, 8(vp)	C load v limb and update vp
 	adde	s0, s0, u0	C add limbs with cy, set cy
@@ -73,15 +74,14 @@ L(loop):
 	lwz	u0, 4(up)	C load u limb
 	rlwimi	s1, v0, 1, 0,30	C left shift v limb and merge with prev v limb
 
-	bdnz	L(loop)		C decrement ctr and loop back
+	bdnz	.Loop		C decrement ctr and loop back
 
-L(end):	adde	r7, s1, u0
+.Lend:	adde	r7, s1, u0
 	srwi	r4, v0, 31
 	stw	r7, 4(rp)	C store last result limb
 	addze	r3, r4
 	blr
-L(exit):
-	adde	r7, s0, u0
+.Lexit:	adde	r7, s0, u0
 	srwi	r4, v1, 31
 	stw	r7, 8(rp)	C store last result limb
 	addze	r3, r4

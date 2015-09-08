@@ -10,7 +10,7 @@ This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -19,7 +19,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
 #include "gmp.h"
 #include "gmp-impl.h"
@@ -30,7 +32,7 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 /* Divide a={src,size} by d=divisor and store the quotient in q={dst,size}.
    q will only be correct if d divides a exactly.
 
-   A separate loop is used for shift==0 because n<<GMP_LIMB_BITS doesn't
+   A separate loop is used for shift==0 because n<<BITS_PER_MP_LIMB doesn't
    give zero on all CPUs (for instance it doesn't on the x86s).  This
    separate loop might run faster too, helping odd divisors.
 
@@ -50,7 +52,7 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
    faster on some CPUs and would mean just the shift==0 style loop would be
    needed.
 
-   If n<<GMP_LIMB_BITS gives zero on a particular CPU then the separate
+   If n<<BITS_PER_MP_LIMB gives zero on a particular CPU then the separate
    shift==0 loop is unnecessary, and could be eliminated if there's no great
    speed difference.
 
@@ -92,7 +94,7 @@ mpn_divexact_1 (mp_ptr dst, mp_srcptr src, mp_size_t size, mp_limb_t divisor)
   else
     shift = 0;
 
-  binvert_limb (inverse, divisor);
+  modlimb_invert (inverse, divisor);
   divisor <<= GMP_NAIL_BITS;
 
   if (shift != 0)

@@ -8,7 +8,7 @@ This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -17,7 +17,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
 #include <stdio.h> /* for NULL */
 #include "gmp.h"
@@ -50,8 +52,8 @@ mpz_gcdext (mpz_ptr g, mpz_ptr s, mpz_ptr t, mpz_srcptr a, mpz_srcptr b)
     {
       usize = asize;
       vsize = bsize;
-      up = TMP_ALLOC_LIMBS (usize + 1);
-      vp = TMP_ALLOC_LIMBS (vsize + 1);
+      up = (mp_ptr) TMP_ALLOC ((usize + 1) * BYTES_PER_MP_LIMB);
+      vp = (mp_ptr) TMP_ALLOC ((vsize + 1) * BYTES_PER_MP_LIMB);
       MPN_COPY (up, ap, usize);
       MPN_COPY (vp, bp, vsize);
       u = a;
@@ -63,8 +65,8 @@ mpz_gcdext (mpz_ptr g, mpz_ptr s, mpz_ptr t, mpz_srcptr a, mpz_srcptr b)
     {
       usize = bsize;
       vsize = asize;
-      up = TMP_ALLOC_LIMBS (usize + 1);
-      vp = TMP_ALLOC_LIMBS (vsize + 1);
+      up = (mp_ptr) TMP_ALLOC ((usize + 1) * BYTES_PER_MP_LIMB);
+      vp = (mp_ptr) TMP_ALLOC ((vsize + 1) * BYTES_PER_MP_LIMB);
       MPN_COPY (up, bp, usize);
       MPN_COPY (vp, ap, vsize);
       u = b;
@@ -73,8 +75,8 @@ mpz_gcdext (mpz_ptr g, mpz_ptr s, mpz_ptr t, mpz_srcptr a, mpz_srcptr b)
       tt = s;
     }
 
-  tmp_gp = TMP_ALLOC_LIMBS (usize + 1);
-  tmp_sp = TMP_ALLOC_LIMBS (usize + 1);
+  tmp_gp = (mp_ptr) TMP_ALLOC ((usize + 1) * BYTES_PER_MP_LIMB);
+  tmp_sp = (mp_ptr) TMP_ALLOC ((usize + 1) * BYTES_PER_MP_LIMB);
 
   if (vsize == 0)
     {

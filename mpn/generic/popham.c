@@ -6,7 +6,7 @@ This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -15,7 +15,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
 #include "gmp.h"
 #include "gmp-impl.h"
@@ -30,19 +32,19 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 #define POPHAM(u,v) u ^ v
 #endif
 
-mp_bitcnt_t
+unsigned long
 FNAME (mp_srcptr up,
 #if OPERATION_hamdist
        mp_srcptr vp,
 #endif
        mp_size_t n)
 {
-  mp_bitcnt_t result = 0;
+  unsigned long result = 0;
   mp_limb_t p0, p1, p2, p3, x, p01, p23;
   mp_size_t i;
 
   ASSERT (n >= 1);		/* Actually, this code handles any n, but some
-				   assembly implementations do not.  */
+				   assembly implementations does not.  */
 
   for (i = n >> 2; i != 0; i--)
     {

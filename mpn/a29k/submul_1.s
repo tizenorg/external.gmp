@@ -7,7 +7,7 @@
 
 ; The GNU MP Library is free software; you can redistribute it and/or modify
 ; it under the terms of the GNU Lesser General Public License as published by
-; the Free Software Foundation; either version 3 of the License, or (at your
+; the Free Software Foundation; either version 2.1 of the License, or (at your
 ; option) any later version.
 
 ; The GNU MP Library is distributed in the hope that it will be useful, but
@@ -16,7 +16,9 @@
 ; License for more details.
 
 ; You should have received a copy of the GNU Lesser General Public License
-; along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
+; along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+; the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+; MA 02110-1301, USA.
 
 
 ; INPUT PARAMETERS
@@ -82,7 +84,7 @@ Loop:	mtsrim	cr,(8-1)
 	subc	gr102,gr102,gr110
 	subc	gr103,gr103,gr111
 
-	add	gr104,gr103,gr111	; invert carry from previous sub
+	add	gr104,gr103,gr111	; invert carry from previus sub
 	addc	gr120,gr120,0
 
 	mtsrim	cr,(8-1)
@@ -105,7 +107,7 @@ Loop2:	load	0,0,gr116,lr3
 	add	gr117,gr117,gr120
 	addc	gr118,gr118,0
 	sub	gr119,gr119,gr117
-	add	gr104,gr119,gr117	; invert carry from previous sub
+	add	gr104,gr119,gr117	; invert carry from previus sub
 	store	0,0,gr119,lr2
 	jmpfdec	lr4,Loop2
 	 addc	gr120,gr118,0

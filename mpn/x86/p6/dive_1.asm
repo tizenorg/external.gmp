@@ -1,12 +1,12 @@
 dnl  Intel P6 mpn_modexact_1_odd -- exact division style remainder.
 
-dnl  Copyright 2001, 2002, 2007 Free Software Foundation, Inc.
+dnl  Copyright 2001, 2002 Free Software Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
 dnl
 dnl  The GNU MP Library is free software; you can redistribute it and/or
 dnl  modify it under the terms of the GNU Lesser General Public License as
-dnl  published by the Free Software Foundation; either version 3 of the
+dnl  published by the Free Software Foundation; either version 2.1 of the
 dnl  License, or (at your option) any later version.
 dnl
 dnl  The GNU MP Library is distributed in the hope that it will be useful,
@@ -14,8 +14,10 @@ dnl  but WITHOUT ANY WARRANTY; without even the implied warranty of
 dnl  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 dnl  Lesser General Public License for more details.
 dnl
-dnl  You should have received a copy of the GNU Lesser General Public License
-dnl  along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
+dnl  You should have received a copy of the GNU Lesser General Public
+dnl  License along with the GNU MP Library; see the file COPYING.LIB.  If
+dnl  not, write to the Free Software Foundation, Inc., 51 Franklin Street,
+dnl  Fifth Floor, Boston, MA 02110-1301, USA.
 
 include(`../config.m4')
 
@@ -75,10 +77,14 @@ deflit(`FRAME',0)
 	andl	$127, %eax
 
 ifdef(`PIC',`
-	LEA(	binvert_limb_table, %ebp)
-	movzbl	(%eax,%ebp), %ebp		C inv 8 bits
+	call	L(movl_eip_ebp)
+	addl	$_GLOBAL_OFFSET_TABLE_, %ebp
+	movl	modlimb_invert_table@GOT(%ebp), %ebp
+	movzbl	(%eax,%ebp), %ebp			C inv 8 bits
+
 ',`
-	movzbl	binvert_limb_table(%eax), %ebp	C inv 8 bits
+dnl non-PIC
+	movzbl	modlimb_invert_table(%eax), %ebp	C inv 8 bits
 ')
 
 	leal	(%ebp,%ebp), %eax	C 2*inv
@@ -106,7 +112,7 @@ ifdef(`PIC',`
 
 	subl	%eax, %ebp		C inv = 2*inv - inv*inv*d
 
-	ASSERT(e,`	C d*inv == 1 mod 2^GMP_LIMB_BITS
+	ASSERT(e,`	C d*inv == 1 mod 2^BITS_PER_MP_LIMB
 	movl	PARAM_DIVISOR, %eax
 	imull	%ebp, %eax
 	cmpl	$1, %eax')
@@ -251,5 +257,12 @@ L(even_one):
 	addl	$STACK_SPACE, %esp
 
 	ret
+
+
+ifdef(`PIC',`
+L(movl_eip_ebp):
+	movl	(%esp), %ebp
+	ret_internal
+')
 
 EPILOGUE()

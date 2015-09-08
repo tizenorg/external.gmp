@@ -3,14 +3,14 @@
 # GMP config.guess wrapper.
 
 
-# Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008 Free Software
-# Foundation, Inc.
+# Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006 Free Software Foundation,
+# Inc.
 #
 # This file is part of the GNU MP Library.
 #
 # The GNU MP Library is free software; you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published
-# by the Free Software Foundation; either version 3 of the License, or (at
+# by the Free Software Foundation; either version 2.1 of the License, or (at
 # your option) any later version.
 #
 # The GNU MP Library is distributed in the hope that it will be useful, but
@@ -19,7 +19,9 @@
 # License for more details.
 #
 # You should have received a copy of the GNU Lesser General Public License
-# along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
+# along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
 
 
 # Usage: config.guess
@@ -190,8 +192,7 @@ main ()
       /* "GenuineIntel" */
       switch ((getcpuid(3LL) >> 24) & 0xFF) {
       case 0x07: puts ("itanium");  break;
-      case 0x1F: puts ("itanium2"); break; /* McKinley, Madison */
-      case 0x20: puts ("itanium2"); break; /* Montecito */
+      case 0x1F: puts ("itanium2"); break;
       }
     }
   return 0;
@@ -375,7 +376,6 @@ main ()
   case 0x8000: puts ("powerpc7450"); break;
   case 0x8001: puts ("powerpc7455"); break;
   case 0x8002: puts ("powerpc7457"); break;
-  case 0x8003: puts ("powerpc7447"); break; /* really 7447A */
   case 0x800c: puts ("powerpc7410"); break;
   }
   return 0;
@@ -445,15 +445,6 @@ main ()
   /* This is waiting for a bit more info.
   case POWER_RS64II: puts ("powerpcrs64ii"); break;
   */
-#ifdef POWER_4
-  case POWER_4:    puts ("power4"); break;
-#endif
-#ifdef POWER_5
-  case POWER_5:    puts ("power5"); break;
-#endif
-#ifdef POWER_6
-  case POWER_6:    puts ("power6"); break;
-#endif
   default:
     if (_system_configuration.architecture == POWER_RS)
       puts ("power");
@@ -497,10 +488,7 @@ main (void)
       case CPU_SUBTYPE_POWERPC_750:   puts ("powerpc750");  break;
       case CPU_SUBTYPE_POWERPC_7400:  puts ("powerpc7400"); break;
       case CPU_SUBTYPE_POWERPC_7450:  puts ("powerpc7450"); break;
-      /* Darwin 6.8.5 doesn't define the following */
-      case 0x8001:                    puts ("powerpc7455"); break;
-      case 0x8002:                    puts ("powerpc7457"); break;
-      case 0x8003:                    puts ("powerpc7447"); break;
+      /* Darwin 6.8.5 doesn't define a constant for 970, but gives 100 */
       case 100:                       puts ("powerpc970");  break;
       }
     }
@@ -666,8 +654,8 @@ sparc-*-* | sparc64-*-*)
   fi
   ;;
 
-i?86-*-* | amd64-*-* | x86_64-*-*)
-  cat <<EOF >${dummy}0.s
+i?86-*-*)
+  cat <<EOF >${dummy}1.s
 	.globl cpuid
 	.globl _cpuid
 cpuid:
@@ -685,21 +673,6 @@ _cpuid:
 	popl %esi
 	ret
 EOF
-  cat <<EOF >${dummy}1.s
-	.globl cpuid
-	.globl _cpuid
-cpuid:
-_cpuid:
-	push %rbx
-	mov %esi,%eax
-	.byte 0x0f
-	.byte 0xa2
-	mov %ebx,(%rdi)
-	mov %edx,4(%rdi)
-	mov %ecx,8(%rdi)
-	pop %rbx
-	ret
-EOF
   cat <<EOF >${dummy}2.c
 main ()
 {
@@ -714,11 +687,11 @@ main ()
 
   fms = cpuid (dummy_string, 1);
 
-  family = ((fms >> 8) & 0xf) + ((fms >> 20) & 0xff);
-  model = ((fms >> 4) & 0xf) + ((fms >> 12) & 0xf0);
-  stepping = fms & 0xf;
+  family = (fms >> 8) & 15;
+  model = (fms >> 4) & 15;
+  stepping = fms & 15;
 
-  modelstr = "$guess_cpu";
+  modelstr = "i486";
   if (strcmp (vendor_string, "GenuineIntel") == 0)
     {
       switch (family)
@@ -728,22 +701,9 @@ main ()
 	  else if (model >= 4)	modelstr = "pentiummmx";
 	  break;
 	case 6:
-	  if (model <= 1)		modelstr = "pentiumpro";
-	  else if (model <= 6)		modelstr = "pentium2";
-	  else if (model <= 8)		modelstr = "pentium3";
-	  else if (model <= 9)		modelstr = "pentiumm";
-	  else if (model <= 0x0c)	modelstr = "pentium3";
-	  else if (model <= 0x0e)	modelstr = "pentiumm";
-	  else if (model <= 0x19)	modelstr = "core2";
-	  else if (model == 0x1a)	modelstr = "corei"; /* NHM Gainestown */
-	  else if (model == 0x1c)	modelstr = "atom";  /* Silverthorne */
-	  else if (model == 0x1d)	modelstr = "core2"; /* PNR Dunnington */
-	  else if (model == 0x1e)	modelstr = "corei"; /* NHM Lynnfield/Jasper */
-	  else if (model == 0x25)	modelstr = "corei"; /* WSM Clarkdale/Arrandale */
-	  else if (model == 0x26)	modelstr = "atom";  /* Lincroft */
-	  else if (model == 0x27)	modelstr = "atom";  /* Saltwell */
-	  else if (model == 0x2c)	modelstr = "corei"; /* WSM Gulftown */
-	  else if (model == 0x2e)	modelstr = "corei"; /* NHM Beckton */
+	  if (model == 1)	modelstr = "pentiumpro";
+	  else if (model <= 6)	modelstr = "pentium2";
+	  else			modelstr = "pentium3";
 	  break;
 	case 15:
 	  modelstr = "pentium4";
@@ -757,17 +717,16 @@ main ()
 	case 5:
 	  if (model <= 3)	modelstr = "k5";
 	  else if (model <= 7)	modelstr = "k6";
-	  else if (model == 8)	modelstr = "k62";
-	  else if (model == 9)	modelstr = "k63";
-	  else if (model == 10) modelstr = "geode";
-	  else if (model == 13) modelstr = "k63";
+	  else if (model <= 8)	modelstr = "k62";
+	  else if (model <= 9)	modelstr = "k63";
 	  break;
 	case 6:
 	  modelstr = "athlon";
 	  break;
 	case 15:
-	case 16:
-	  modelstr = "athlon64";
+	  /* We might want to return opteron, athlon64, or the CPU core name
+	     hammer here instead of the architecture name x86_64.  */
+	  modelstr = "x86_64";
 	  break;
 	}
     }
@@ -781,8 +740,7 @@ main ()
 	{
 	case 6:
 	  if (model < 9)	modelstr = "viac3";
-	  else if (model < 15)	modelstr = "viac32";
-	  else			modelstr = "nano";
+	  else			modelstr = "viac32";
 	  break;
 	}
     }
@@ -806,25 +764,9 @@ EOF
     fi
   fi
 
-  if test -z "$exact_cpu"; then
-  if ($CC_FOR_BUILD ${dummy}0.s ${dummy}2.c -o $dummy) >/dev/null 2>&1; then
-    # On 80386 and early 80486 cpuid is not available and will result in a
-    # SIGILL message, hence 2>/dev/null.
-    #
-    # On i386-unknown-freebsd4.9, "/bin/sh -c ./dummy" seems to send an
-    # "Illegal instruction (core dumped)" message to stdout, so we test $?
-    # to check if the program run was successful.
-    #
-    x=`$SHELL -c ./$dummy 2>/dev/null`
-    if test $? = 0 && test -n "$x"; then
-      exact_cpu=$x
-    fi
-  fi
-  fi
-
   # We need to remove some .o files here since lame C compilers
   # generate these even when not asked.
-  rm -f ${dummy}0.s ${dummy}0.o ${dummy}1.s ${dummy}1.o ${dummy}2.c ${dummy}2.o $dummy
+  rm -f ${dummy}1.s ${dummy}1.o ${dummy}2.c ${dummy}2.o $dummy
   ;;
 
 esac

@@ -1,12 +1,12 @@
 dnl  AMD K7 mpn_gcd_1 -- mpn by 1 gcd.
 
-dnl  Copyright 2000, 2001, 2002, 2009 Free Software Foundation, Inc.
+dnl  Copyright 2000, 2001, 2002 Free Software Foundation, Inc.
 dnl
 dnl  This file is part of the GNU MP Library.
 dnl
 dnl  The GNU MP Library is free software; you can redistribute it and/or
 dnl  modify it under the terms of the GNU Lesser General Public License as
-dnl  published by the Free Software Foundation; either version 3 of the
+dnl  published by the Free Software Foundation; either version 2.1 of the
 dnl  License, or (at your option) any later version.
 dnl
 dnl  The GNU MP Library is distributed in the hope that it will be useful,
@@ -14,8 +14,10 @@ dnl  but WITHOUT ANY WARRANTY; without even the implied warranty of
 dnl  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 dnl  Lesser General Public License for more details.
 dnl
-dnl  You should have received a copy of the GNU Lesser General Public License
-dnl  along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
+dnl  You should have received a copy of the GNU Lesser General Public
+dnl  License along with the GNU MP Library; see the file COPYING.LIB.  If
+dnl  not, write to the Free Software Foundation, Inc., 51 Franklin Street,
+dnl  Fifth Floor, Boston, MA 02110-1301, USA.
 
 include(`../config.m4')
 
@@ -44,8 +46,8 @@ C Actually, there doesn't seem to be a measurable difference between this in
 C it's own cache line or plonked in the middle of the code.  Presumably
 C since TEXT is read-only there's no worries about coherency.
 
+deflit(MASK, 63)
 deflit(MAXSHIFT, 6)
-deflit(MASK, eval((1<<MAXSHIFT)-1))
 
 	TEXT
 	ALIGN(64)
@@ -82,37 +84,37 @@ deflit(`FRAME',0)
 	ASSERT(ne, `cmpl $0, PARAM_LIMB')	C y!=0
 	ASSERT(ae, `cmpl $1, PARAM_SIZE')	C size>=1
 
-	mov	PARAM_SRC, %eax
-	mov	PARAM_LIMB, %edx
-	sub	$STACK_SPACE, %esp	deflit(`FRAME',STACK_SPACE)
+	movl	PARAM_SRC, %eax
+	movl	PARAM_LIMB, %edx
+	subl	$STACK_SPACE, %esp	deflit(`FRAME',STACK_SPACE)
 
-	mov	%esi, SAVE_ESI
-	mov	%ebx, SAVE_EBX
+	movl	%esi, SAVE_ESI
+	movl	%ebx, SAVE_EBX
 
-	mov	(%eax), %esi		C src low limb
+	movl	(%eax), %esi		C src low limb
 
 ifdef(`PIC',`
-	mov	%edi, SAVE_EDI
+	movl	%edi, SAVE_EDI
 	call	L(movl_eip_to_edi)
 L(here):
-	add	$L(table)-L(here), %edi
+	addl	$L(table)-L(here), %edi
 ')
 
-	mov	%esi, %ebx
-	or	%edx, %esi	C x|y
-	mov	$-1, %ecx
+	movl	%esi, %ebx
+	orl	%edx, %esi	C x|y
+	movl	$-1, %ecx
 
 L(twos):
-	inc	%ecx
-	shr	%esi
+	incl	%ecx
+	shrl	%esi
 	jnc	L(twos)		C 3/4 chance of x or y odd already
 
-	shr	%cl, %ebx
-	shr	%cl, %edx
-	mov	%ecx, %esi	C common twos
+	shrl	%cl, %ebx
+	shrl	%cl, %edx
+	movl	%ecx, %esi	C common twos
 
-	mov	PARAM_SIZE, %ecx
-	cmp	$1, %ecx
+	movl	PARAM_SIZE, %ecx
+	cmpl	$1, %ecx
 	ja	L(divide)
 
 
@@ -124,8 +126,8 @@ L(twos):
 	C edi	[PIC] L(table)
 	C ebp
 
-	mov	%edx, %eax
-	cmp	%ebx, %edx
+	movl	%edx, %eax
+	cmpl	%ebx, %edx
 
 	cmovb(	%ebx, %eax)	C swap to make x bigger than y
 	cmovb(	%edx, %ebx)
@@ -141,9 +143,9 @@ L(strip_y):
 	C ebp
 
 	ASSERT(nz,`orl %ebx,%ebx')
-	shr	%ebx
+	shrl	%ebx
 	jnc	L(strip_y)
-	rcl	%ebx
+	rcll	%ebx
 
 
 	C eax	x
@@ -154,22 +156,22 @@ L(strip_y):
 	C edi	[PIC] L(table)
 	C ebp
 
-	mov	%eax, %ecx
-	mov	%ebx, %edx
-	shr	$DIV_THRESHOLD, %eax
+	movl	%eax, %ecx
+	movl	%ebx, %edx
+	shrl	$DIV_THRESHOLD, %eax
 
-	cmp	%eax, %ebx
-	mov	%ecx, %eax
+	cmpl	%eax, %ebx
+	movl	%ecx, %eax
 	ja	L(strip_x_entry)	C do x%y if x much bigger than y
 
 
-	xor	%edx, %edx
+	xorl	%edx, %edx
 
-	div	%ebx
+	divl	%ebx
 
-	or	%edx, %edx
-	mov	%edx, %ecx		C remainder -> x
-	mov	%ebx, %edx		C y
+	orl	%edx, %edx
+	movl	%edx, %eax		C remainder -> x
+	movl	%ebx, %edx		C y
 
 	jz	L(done_ebx)
 	jmp	L(strip_x)
@@ -194,43 +196,43 @@ L(top):
 	cmovc(	%eax, %edx)
 
 L(strip_x):
-	mov	%ecx, %eax
+	movl	%ecx, %eax
 L(strip_x_entry):
-	and	$MASK, %ecx
+	andl	$MASK, %ecx
 
 	ASSERT(nz, `orl %eax, %eax')
 
 ifdef(`PIC',`
-	mov	(%ecx,%edi), %cl
+	movb	(%ecx,%edi), %cl
 ',`
-	mov	L(table) (%ecx), %cl
+	movb	L(table) (%ecx), %cl
 ')
 
-	shr	%cl, %eax
-	cmp	$MAXSHIFT, %cl
+	shrl	%cl, %eax
+	cmpb	$MAXSHIFT, %cl
 
-	mov	%eax, %ecx
-	mov	%edx, %ebx
+	movl	%eax, %ecx
+	movl	%edx, %ebx
 	je	L(strip_x)
 
-	ASSERT(nz, `test $1, %eax')	C both odd
-	ASSERT(nz, `test $1, %edx')
+	ASSERT(nz, `testl $1, %eax')	C both odd
+	ASSERT(nz, `testl $1, %edx')
 
-	sub	%eax, %ebx
-	sub	%edx, %ecx
+	subl	%eax, %ebx
+	subl	%edx, %ecx
 	jnz	L(top)
 
 
 L(done):
-	mov	%esi, %ecx
-	mov	SAVE_ESI, %esi
+	movl	%esi, %ecx
+	movl	SAVE_ESI, %esi
 ifdef(`PIC',`
-	mov	SAVE_EDI, %edi
+	movl	SAVE_EDI, %edi
 ')
 
-	shl	%cl, %eax
-	mov	SAVE_EBX, %ebx
-	add	$FRAME, %esp
+	shll	%cl, %eax
+	movl	SAVE_EBX, %ebx
+	addl	$FRAME, %esp
 
 	ret
 
@@ -254,23 +256,23 @@ L(divide):
 	C ebp
 
 L(divide_strip_y):
-	ASSERT(nz,`or %edx,%edx')
-	shr	%edx
+	ASSERT(nz,`orl %edx,%edx')
+	shrl	%edx
 	jnc	L(divide_strip_y)
-	lea	1(%edx,%edx), %ebx		C y now odd
+	leal	1(%edx,%edx), %ebx		C y now odd
 
-	mov	%ebp, SAVE_EBP
-	mov	%eax, %ebp
-	mov	-4(%eax,%ecx,4), %eax		C src high limb
+	movl	%ebp, SAVE_EBP
+	movl	%eax, %ebp
+	movl	-4(%eax,%ecx,4), %eax		C src high limb
 
 	cmp	$MODEXACT_THRESHOLD, %ecx
 	jae	L(modexact)
 
-	cmp	%ebx, %eax			C high cmp divisor
-	mov	$0, %edx
+	cmpl	%ebx, %eax			C high cmp divisor
+	movl	$0, %edx
 
 	cmovc(	%eax, %edx)			C skip a div if high<divisor
-	sbb	$0, %ecx
+	sbbl	$0, %ecx
 
 
 L(divide_top):
@@ -282,11 +284,11 @@ L(divide_top):
 	C edi	[PIC] L(table)
 	C ebp	src
 
-	mov	-4(%ebp,%ecx,4), %eax
+	movl	-4(%ebp,%ecx,4), %eax
 
-	div	%ebx
+	divl	%ebx
 
-	dec	%ecx
+	decl	%ecx
 	jnz	L(divide_top)
 
 
@@ -298,17 +300,17 @@ L(divide_top):
 	C edi	[PIC] L(table)
 	C ebp
 
-	or	%edx, %edx
-	mov	SAVE_EBP, %ebp
-	mov	%edx, %eax
+	orl	%edx, %edx
+	movl	SAVE_EBP, %ebp
+	movl	%edx, %eax
 
-	mov	%edx, %ecx
-	mov	%ebx, %edx
+	movl	%edx, %ecx
+	movl	%ebx, %edx
 	jnz	L(strip_x_entry)
 
 
 L(done_ebx):
-	mov	%ebx, %eax
+	movl	%ebx, %eax
 	jmp	L(done)
 
 
@@ -323,20 +325,20 @@ L(modexact):
 	C ebp	src
 
 ifdef(`PIC',`
-	mov	%ebp, CALL_SRC
-	mov	%ebx, %ebp		C y
-	mov	%edi, %ebx		C L(table)
+	movl	%ebp, CALL_SRC
+	movl	%ebx, %ebp		C y
+	movl	%edi, %ebx		C L(table)
 
-	add	$_GLOBAL_OFFSET_TABLE_+[.-L(table)], %ebx
-	mov	%ebp, CALL_DIVISOR
-	mov	%ecx, CALL_SIZE
+	addl	$_GLOBAL_OFFSET_TABLE_+[.-L(table)], %ebx
+	movl	%ebp, CALL_DIVISOR
+	movl	%ecx, CALL_SIZE
 
 	call	GSYM_PREFIX`'mpn_modexact_1_odd@PLT
 ',`
 dnl non-PIC
-	mov	%ebx, CALL_DIVISOR
-	mov	%ebp, CALL_SRC
-	mov	%ecx, CALL_SIZE
+	movl	%ebx, CALL_DIVISOR
+	movl	%ebp, CALL_SRC
+	movl	%ecx, CALL_SIZE
 
 	call	GSYM_PREFIX`'mpn_modexact_1_odd
 ')
@@ -349,20 +351,20 @@ dnl non-PIC
 	C edi	[PIC] L(table)
 	C ebp	[PIC] y
 
-	or	%eax, %eax
-	mov	ifdef(`PIC',`%ebp',`%ebx'), %edx
-	mov	SAVE_EBP, %ebp
+	orl	%eax, %eax
+	movl	ifdef(`PIC',`%ebp',`%ebx'), %edx
+	movl	SAVE_EBP, %ebp
 
-	mov	%eax, %ecx
+	movl	%eax, %ecx
 	jnz	L(strip_x_entry)
 
-	mov	%edx, %eax
+	movl	%edx, %eax
 	jmp	L(done)
 
 
 ifdef(`PIC', `
 L(movl_eip_to_edi):
-	mov	(%esp), %edi
+	movl	(%esp), %edi
 	ret_internal
 ')
 

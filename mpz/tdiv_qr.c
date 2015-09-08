@@ -7,7 +7,7 @@ This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -16,7 +16,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
 #include "gmp.h"
 #include "gmp-impl.h"
@@ -81,7 +83,7 @@ mdiv (mpz_srcptr num, mpz_srcptr den, mpz_ptr quot, mpz_ptr rem)
   if (dp == rp || dp == qp)
     {
       mp_ptr tp;
-      tp = TMP_ALLOC_LIMBS (dl);
+      tp = (mp_ptr) TMP_ALLOC (dl * BYTES_PER_MP_LIMB);
       MPN_COPY (tp, dp, dl);
       dp = tp;
     }
@@ -90,7 +92,7 @@ mdiv (mpz_srcptr num, mpz_srcptr den, mpz_ptr quot, mpz_ptr rem)
   if (np == rp || np == qp)
     {
       mp_ptr tp;
-      tp = TMP_ALLOC_LIMBS (nl);
+      tp = (mp_ptr) TMP_ALLOC (nl * BYTES_PER_MP_LIMB);
       MPN_COPY (tp, np, nl);
       np = tp;
     }

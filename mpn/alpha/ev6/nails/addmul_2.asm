@@ -6,7 +6,7 @@ dnl  This file is part of the GNU MP Library.
 dnl
 dnl  The GNU MP Library is free software; you can redistribute it and/or
 dnl  modify it under the terms of the GNU Lesser General Public License as
-dnl  published by the Free Software Foundation; either version 3 of the
+dnl  published by the Free Software Foundation; either version 2.1 of the
 dnl  License, or (at your option) any later version.
 dnl
 dnl  The GNU MP Library is distributed in the hope that it will be useful,
@@ -14,24 +14,26 @@ dnl  but WITHOUT ANY WARRANTY; without even the implied warranty of
 dnl  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 dnl  Lesser General Public License for more details.
 dnl
-dnl  You should have received a copy of the GNU Lesser General Public License
-dnl  along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.
+dnl  You should have received a copy of the GNU Lesser General Public
+dnl  License along with the GNU MP Library; see the file COPYING.LIB.  If
+dnl  not, write to the Free Software Foundation, Inc., 51 Franklin Street,
+dnl  Fifth Floor, Boston, MA 02110-1301, USA.
+
+
+dnl  Runs at 4.0 cycles/limb.  Speed limited by mulq latency.  With unrolling,
+dnl  the ulimb load and the 3 bookkeeping increments and the `bis' that copies
+dnl  from r21 to r5 could be removed and the instruction count reduced from 21
+dnl  to to 16.  We could thereby reach about 2.3 cycles/limb.
 
 include(`../config.m4')
 
-C Runs at 4.0 cycles/limb.
-
-C We could either go for 2-way unrolling over 11 cycles, or 2.75 c/l,
-C or 4-way unrolling over 20 cycles, for 2.5 c/l.
-
-
-C  INPUT PARAMETERS
+dnl  INPUT PARAMETERS
 define(`rp',`r16')
 define(`up',`r17')
 define(`n',`r18')
 define(`vp',`r19')
 
-C  Useful register aliases
+dnl  Useful register aliases
 define(`numb_mask',`r24')
 define(`ulimb',`r25')
 define(`rlimb',`r27')
@@ -47,12 +49,12 @@ define(`acc1',`r5')
 define(`v0',`r6')
 define(`v1',`r7')
 
-C Used for temps: r8 r19 r28
+dnl Used for temps: r8 r19 r28
 
 define(`NAIL_BITS',`GMP_NAIL_BITS')
 define(`NUMB_BITS',`GMP_NUMB_BITS')
 
-C  This declaration is munged by configure
+dnl  This declaration is munged by configure
 NAILS_SUPPORT(3-63)
 
 ASM_START()
@@ -77,7 +79,6 @@ PROLOGUE(mpn_addmul_2)
 	umulh	v1,	ulimb,	m1b		C U1
 	lda	n,	-1(n)
 	beq	n,	L(end)			C U0
-
 	ALIGN(16)
 L(top):	bis	r31,	r31,	r31		C U1	nop
 	addq	r19,	acc0,	acc0		C U0	propagate nail
@@ -96,7 +97,7 @@ L(top):	bis	r31,	r31,	r31		C U1	nop
 
 	addq	rlimb,	r19,	r19		C L1	FINAL PROD-SUM
 	srl	m1a,NAIL_BITS,	r8		C U0
-	lda	n,	-1(n)			C L0
+	bis	r31,	r31,	r31		C L0	nop
 	mulq	v1,	ulimb,	m1a		C U1
 
 	addq	r8,	acc0,	acc0		C U0
@@ -104,7 +105,7 @@ L(top):	bis	r31,	r31,	r31		C U1	nop
 	umulh	v1,	ulimb,	m1b		C U1
 	and	r19,numb_mask,	r28		C L0	extract numb part
 
-	unop
+	lda	n,	-1(n)			C L0
 	srl	r19,NUMB_BITS,	r19		C U1	extract nail part
 	stq	r28,	-8(rp)			C L1
 	bne	n,	L(top)			C U0

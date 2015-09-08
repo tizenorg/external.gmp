@@ -7,7 +7,7 @@ This file is part of the GNU MP Library.
 
 The GNU MP Library is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 3 of the License, or (at your
+the Free Software Foundation; either version 2.1 of the License, or (at your
 option) any later version.
 
 The GNU MP Library is distributed in the hope that it will be useful, but
@@ -16,7 +16,9 @@ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
 License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
+along with the GNU MP Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA. */
 
 #include "gmp.h"
 #include "gmp-impl.h"
@@ -25,8 +27,8 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
 #include "fac_ui.h"
 
 
-static void odd_product __GMP_PROTO ((unsigned long, unsigned long, mpz_t *));
-static void ap_product_small __GMP_PROTO ((mpz_t, mp_limb_t, mp_limb_t, unsigned long, unsigned long));
+static void odd_product _PROTO ((unsigned long low, unsigned long high, mpz_t * st));
+static void ap_product_small _PROTO ((mpz_t ret, mp_limb_t start, mp_limb_t step, unsigned long count, unsigned long nm));
 
 
 /* must be >=2	*/
@@ -62,7 +64,7 @@ static void ap_product_small __GMP_PROTO ((mpz_t, mp_limb_t, mp_limb_t, unsigned
   } while (0)
 
 
-#if BITS_PER_ULONG == GMP_LIMB_BITS
+#if BITS_PER_ULONG == BITS_PER_MP_LIMB
 #define BSWAP_ULONG(x,y)	BSWAP_LIMB(x,y)
 #endif
 
