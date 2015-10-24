@@ -52,6 +52,7 @@ in applications.
 rm -rf mpn/sparc*
 
 %build
+export LDFLAGS+="-Wl,-z,noexecstack"
 ./configure \
     --prefix=%{_prefix} \
     --includedir=%{_includedir} \
